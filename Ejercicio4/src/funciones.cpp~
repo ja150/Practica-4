@@ -1,0 +1,238 @@
+#include <funciones.h>
+#include <iostream>
+
+using namespace std;
+
+struct lista{
+	double numero;
+	lista *next;
+};
+
+
+
+//Función que introduce datos a nuestra lista enlazada 
+
+lista *mete_datos(){
+	lista *p, *end, *aux;
+	double numero;
+	cout << "Introduce numero (negativo para salir): " << endl;          //Recibe un numero.
+	cin >> numero;
+	if(numero >= 0){                                                     //Si el numero es mayor o igual a 0, crea una lista, le asigna al campo numero el valor del numero y colocamos a next un 0, ya 
+		p = new lista;		                                            //que sera nuestro ultimo valor ahora mismo y le indico que la variable end apunte a donde está apuntando p.
+		p->numero = numero;
+		p->next = 0;
+		end = p;
+		while(numero >= 0){                                             //Si el numero anteriormente introducido es mayor o igual a 0, puedo volver a introducir numeros mientras sean mayor o iguales 
+			cout << "Introduce numero (negativo para salir): " << endl; //a 0, creo otra lista y vuelvo a asignarle los datos.
+			cin >> numero;		
+			if(numero >= 0){					
+				end->next = new lista;
+				end = end->next;
+				end->numero = numero;
+				end->next = 0;
+			}
+		}
+	}
+	return p;
+}
+
+//Función que muestra los datos que tenemos en nuestra lista
+void muestra_datos(lista *p){
+	lista *aux;
+	aux = p;                 								    //Coloco aux al principio y repito hasta que aux no apunte a nada, muestro el numero e incremento aux.
+	while(aux != 0){
+		cout << aux->numero << endl;
+		aux = aux->next;	
+	}
+}
+
+//Función que retorna cuantas celdas enlazadas hay
+int numero_celdas(lista *p){
+	lista *aux;
+	int contador = 0;
+	aux = p;                                                             //Coloco aux al principio y repito hasta que aux no apunte a nada, aumento el contador y apunto con aux a la siguiente lista.
+	while(aux != 0){
+		contador++;
+		aux = aux->next;
+	}
+	return contador;
+}
+
+//Función que retorna la media de los numeros almacenados
+double medial(lista *p){
+	lista *aux;
+	int celdas = numero_celdas(p);
+	double sumatoria = 0;                                                //Recojo cuantas celdas hay, coloco aux al principio y repito hasta que aux no apunte a nada, sumo los numeros que tengo en la 
+	aux = p;                                                             //lista y apunto con aux a la siguiente lista y devuelvo el total de numeros entre las celdas.
+	while(aux != 0){
+		sumatoria = aux->numero + sumatoria;
+		aux = aux->next;
+	}	
+	return (sumatoria/celdas);
+}
+
+//Función que retorna la varianza
+double var(lista *p){
+	lista *aux;
+	double celdas = numero_celdas(p);
+	double media = medial(p);
+	double sumatoria = 0, total = 0;	
+	aux = p;                                                             //Apunto con aux a la primera posicion, recorro las listas que tengo, resto al numero que tengo la media y lo elevo al 
+	while(aux != 0){										    //cuadrado y sumo los valores que tenia almacenados sumatoria, aumento aux y retorno la variable sumatoria/celdas.
+		sumatoria = (aux->numero - media) * (aux->numero - media) + sumatoria;
+		aux = aux->next;
+	}
+	total = (1/celdas * sumatoria);
+	return total;
+	
+}
+
+//Función que devuelve true si la lista está ordenada o false si no lo está
+bool ordenada(lista *p){
+	lista *end, *aux;
+	aux = p;
+	end = p;
+	aux = aux->next;	                                                 //Apunto con end al principio de la lista y con aux a la siguiente lista, repito hasta que aux llegue al final. Si la posicion 
+	while(aux != 0){                                                     //segunda es menor que la posicion primera devuelvo false ya que la lista no esta ordenada en caso de que no sea asi por 
+		if(aux->numero < end->numero){                                  //ahora, avanzo aux y end.
+			return false;			
+		}else{
+			aux = aux->next;
+			end = end->next;			
+		}			
+	}
+	return true;	                                                      //Devuelvo true si no encontro desordenada la lista.
+}
+
+//Función que comprueba si la lista esta ordenada
+void comprueba_ordenada(lista *p){
+	if(ordenada(p) == true){
+		cout << "La lista está ordenada" << endl;
+	}else{
+		cout << "La lista no está ordenada" << endl;
+	}
+}
+
+//Funcion que ordena por el método de selección la lista
+void ordena_seleccion(lista *p){
+	lista *aux, *end, *pnumaux;
+	int celdas = numero_celdas(p);	
+	int i;
+	double numaux = 0;
+	bool comprueba = false;	
+	end = p;                                                              //Inicializo end al principio de la lista y aux lo adelanto a la siguiente.
+	aux = p;
+	aux = aux->next;
+	for(i=1; i<celdas; i++){	                                             //Repito el bucle tantas veces como celdas tenga.
+		while(aux != 0){                                                 //Repito el bucle hasta que aux no apunte a nada. Si la posicion avanzada es menor que la primera posicion, pongo comprueba a 
+			if(aux->numero < end->numero){                              //verdadero, guardo el valor menor en una variable (numaux) y apunto con otro puntero donde esta ese valor y vuelvo a avanzar 
+				comprueba = true;                                      //aux y hago otro bucle por si hubiera otro valor menor al valor guardado en numaux. Vuelvo a repetir el bucle hasta que 
+				numaux = aux->numero;                                  //llegue al final compruebo si hay uno menor y en caso de que no avanzo hasta el final.
+				pnumaux = aux;
+				aux = aux->next;
+				while(aux != 0){
+					if(aux->numero < numaux){
+						numaux = aux->numero;
+						pnumaux = aux;	
+						aux = aux->next;				
+					}else{
+						aux = aux->next;
+					}
+				}					
+			}else{
+				aux = aux->next;		
+			}
+		}
+		if(comprueba == true){                                           //Compruebo si hubo un valor menor, en caso de que sea true guardo el valor de la primera posicion donde encontré el valor 
+			pnumaux->numero = end->numero;                              //mínimo, guardo en la primera posicion el valor mínimo y pongo comprueba a false.
+			end->numero = numaux;
+			comprueba = false;
+		}	
+		end = end->next;                                                 //Avanzo a ambos.
+		aux = end;
+		aux = aux->next;			
+	}
+}
+
+//Funcion que inserta un dato en su lugar correspondiente
+void inserta_dato(lista *p){            
+	lista *end, *aux;
+	double dato;
+	end = p;
+	aux = p;	                                                                      //Inicializo end al principio y aux una posicion más adelante.
+	aux = aux->next;
+	cout << "Introduce numero (negativo para salir): " << endl;               
+	cin >> dato;
+	if(dato >= 0){
+		while(aux != 0){                                                           //Repito hasta que aux llegue al final. Si encuentra en la primera posicion el dato introducido o en las    
+			if(aux->numero == dato || end->numero == dato){                       //posteriores, se indica de que ya hay un dato igual y nos salimos.
+				cout << "El numero que quiere introducir ya existe" << endl;
+				break;
+			}else{                                                                //En caso de que no, compruebo si la posición inicial es mayor que el dato introducido, creo una lista que irá en 
+				if(p->numero > dato){                                            //la primera posición, almaceno el dato y enlazo esta primera lista con las otras que tenía.
+					p = new lista;
+					p->numero = dato;
+					p->next = end;
+				}else{                                                           //En caso de que el dato a insertar no sea en la primera posicion compruebo el rango donde debería estar, creo una 
+					if(end->numero < dato && aux->numero > dato){               //nueva lista a continuacion de donde tiene que estar avanzo una posicion y apunto con end a la nueva lista y 
+						end->next = new lista;                                 //almaceno el dato y enlazo la nueva lista con la lista siguiente.
+						end = end->next;
+						end->numero = dato;
+						end->next = aux;
+					}else{
+						if(aux->numero < dato && aux->next == 0){              //En caso de que este al final, creo una nueva lista, apunto con aux a la nueva lista, le meto el numero y le añado
+							aux->next = new lista;                            //a next un 0 determinando que esa es la ultima lista.
+							aux = aux->next;
+							aux->numero = dato;
+							aux->next = 0;
+						}
+					}
+				}		
+			}
+			aux = aux->next;
+			end = end->next;
+		}
+	}
+}
+
+//Función para borrar un dato 
+void borrar_dato(lista *p){
+	lista *aux, *end, *exaux;
+	int celdas = numero_celdas(p); 
+	double dato;
+	end = p;                                                                       //Inicializo end al principio y aux una posicion más adelante.
+	aux = p;	
+	aux = aux->next;
+	cout << "Introduce numero (negativo para salir): " << endl;
+	cin >> dato;
+	if(dato >= 0){
+		while(aux != 0){                                                          //Repito hasta que aux no apunta a nada. Si el numero de la primera lista es igual al número que quiero borrar, le 
+			if(end->numero == dato){                                             //asigno a exaux donde esta apuntando end, avanzo end coloco p al principio de la nueva lista ahora y elimino donde 
+				exaux = end;                                                    //estaba el dato.
+				end = end->next;
+				p = end;			
+				delete exaux;
+				break;
+			}else{     
+				if(aux->numero < dato && aux->next == 0){                       //Si el número que hay en la lista es menor que el dato y además es el último, guardo esa posicion, le asigno a aux 
+					exaux = aux;                                               //la de end y pongo un 0 determinando que esa es la ultima lista y elimino el numero.
+					aux = end;
+					end->next = 0;
+					delete exaux;
+					break;
+				}else{
+					if(aux->numero == dato){                                   //Si el número de la lista es igual al dato que quiero eliminar guardo la posición donde está, avanzo aux, enlazo 
+						exaux = aux;                                          //las listas y elimino la lista con el dato.
+						aux = aux->next;
+						end->next = aux;
+						delete exaux;
+						break;
+					}else{
+						end = end->next;
+						aux = aux->next;
+					}
+				}		
+			}		
+		}	
+	}
+}
